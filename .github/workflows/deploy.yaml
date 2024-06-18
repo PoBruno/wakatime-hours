@@ -27,7 +27,7 @@ jobs:
       - name: Run Deno script
         env:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-        run: deno run --allow-net --allow-env main.ts
+        run: deno run --allow-net --allow-env --lock-write main.ts
 
       - name: Deploy to Deno Deploy
         env:
@@ -35,8 +35,8 @@ jobs:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
         run: |
           deployctl deploy \
-            --project=bruno-wakatime \
+            --project=<your_project_name> \
             --token=$DENO_DEPLOY_TOKEN \
             --env WAKATIME_API_KEY=$WAKATIME_API_KEY \
+            --reload \
             main.ts
-
