@@ -39,3 +39,4 @@ jobs:
             --token=$DENO_DEPLOY_TOKEN \
             --env WAKATIME_API_KEY=$WAKATIME_API_KEY \
             main.ts
+
