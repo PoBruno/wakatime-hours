@@ -1,0 +1,41 @@
+name: Deploy to Deno
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Install Deno Deploy CLI
+        run: deno install -A -f -n deploy https://deno.land/x/deploy/deployctl.ts
+
+      - name: Run Deno script
+        env:
+          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+        run: deno run --allow-net --allow-env main.ts
+
+      - name: Deploy to Deno Deploy
+        env:
+          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
+          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+        run: |
+          deployctl deploy \
+            --project=bruno-wakatime \
+            --token=$DENO_DEPLOY_TOKEN \
+            --env WAKATIME_API_KEY=$WAKATIME_API_KEY \
+            main.ts
