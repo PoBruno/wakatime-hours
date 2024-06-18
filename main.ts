@@ -11,9 +11,9 @@ type BadgeProps = {
     style?: string;
 };
 
-// Carregar variáveis de ambiente do arquivo .env
-const env = await load();
-const port = parseInt(Deno.env.get("PORT") as string) || parseInt(env["PORT"]) || 8080;
+// Carregar variáveis de ambiente do arquivo .env se disponível
+await load({ export: true });
+const port = parseInt(Deno.env.get("PORT") || "8080");
 const server = Deno.listen({ port: port });
 
 const cache = new LRUCache({
@@ -21,10 +21,10 @@ const cache = new LRUCache({
     ttl: 1000 * 60 * 60, // 1 hour
 });
 
-console.log(`HTTP webserver running.  Access it at:  http://localhost:${port}/`);
+console.log(`HTTP webserver running. Access it at: http://localhost:${port}/`);
 
-const api = Deno.env.get("WAKATIME_API_KEY") || env["WAKATIME_API_KEY"];
-if (!api) throw new Error("WAKATIME_API_KEY is not defined in .env file.");
+const api = Deno.env.get("WAKATIME_API_KEY");
+if (!api) throw new Error("WAKATIME_API_KEY is not defined in environment variables.");
 const token = Buffer.from(api).toString("base64");
 
 for await (const conn of server) {
@@ -132,8 +132,8 @@ async function serveHttp(conn: Deno.Conn) {
                     ...(Deno.env.get("NODE_ENV") !== "development" && {
                         "Server-Timing": `response;dur=${Date.now() - start}ms`,
                     }),
-                }),
-   }),
-  );
-}
+                },
+            }),
+        );
+    }
 }
