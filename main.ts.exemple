@@ -35,7 +35,7 @@ async function serveHttp(conn: Deno.Conn) {
 
  for await (const requestEvent of httpConn) {
   if (requestEvent.request.method !== "GET") {
-   requestEvent.respondWith(new Response("Invalid method! Use GET instead.", { status: 405 }));
+   requestEvent.respondWith(new Response("Invaild method! Use GET instead.", { status: 405 }));
    continue;
   }
 
