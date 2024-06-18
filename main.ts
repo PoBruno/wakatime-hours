@@ -31,7 +31,7 @@ for await (const conn of server) {
 }
 
 async function serveHttp(conn: Deno.Conn) {
-    const httpConn = Deno.serve(conn) as Deno.HttpConn;
+    const httpConn = Deno.serve(conn) as Deno.serve;
 
     for await (const requestEvent of httpConn) {
         if (requestEvent.request.method !== "GET") {
