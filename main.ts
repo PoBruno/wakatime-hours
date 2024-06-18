@@ -11,9 +11,8 @@ type BadgeProps = {
     style?: string;
 };
 
-// Carregar variáveis de ambiente do arquivo .env se disponível
-await load({ export: true });
-const port = parseInt(Deno.env.get("PORT") || "8080");
+const env = await load();
+const port = parseInt(Deno.env.get("PORT") as string) || parseInt(env["PORT"]) || 8080;
 const server = Deno.listen({ port: port });
 
 const cache = new LRUCache({
@@ -21,10 +20,10 @@ const cache = new LRUCache({
     ttl: 1000 * 60 * 60, // 1 hour
 });
 
-console.log(`HTTP webserver running. Access it at: http://localhost:${port}/`);
+console.log(`HTTP webserver running.  Access it at:  http://localhost:${port}/`);
 
-const api = Deno.env.get("WAKATIME_API_KEY");
-if (!api) throw new Error("WAKATIME_API_KEY is not defined in environment variables.");
+const api = Deno.env.get("WAKATIME_API_KEY") || env["WAKATIME_API_KEY"];
+if (!api) throw new Error("WAKATIME_API_KEY is not defined in .env file.");
 const token = Buffer.from(api).toString("base64");
 
 for await (const conn of server) {
@@ -32,11 +31,11 @@ for await (const conn of server) {
 }
 
 async function serveHttp(conn: Deno.Conn) {
-    const httpConn = Deno.serveHttp(conn) as Deno.HttpConn;
+    const httpConn = Deno.serve(conn) as Deno.HttpConn;
 
     for await (const requestEvent of httpConn) {
         if (requestEvent.request.method !== "GET") {
-            requestEvent.respondWith(new Response("Invalid method! Use GET instead.", { status: 405 }));
+            requestEvent.respondWith(new Response("Invaild method! Use GET instead.", { status: 405 }));
             continue;
         }
 
