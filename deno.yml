@@ -1,4 +1,4 @@
-name: Deno CI
+name: Deploy to Deno
 
 on:
   push:
@@ -9,15 +9,11 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
-    env:
-      WAKATIME_API_KEY: ${{ secrets.PRODUCTION.WAKATIME_API_KEY }}
-      PORT: 8080
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Setup Deno
@@ -25,5 +21,22 @@ jobs:
         with:
           deno-version: v1.x
 
+      - name: Install Deno Deploy CLI
+        run: deno install -A -f -n deploy https://deno.land/x/deploy/deployctl.ts
+
       - name: Run Deno script
-        run: deno run --allow-net --allow-env main.ts
+        env:
+          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+        run: deno run --allow-net --allow-env --allow-read --lock-write main.ts
+
+      - name: Deploy to Deno Deploy
+        env:
+          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
+          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+        run: |
+          deployctl deploy \
+            --project=<your_project_name> \
+            --token=$DENO_DEPLOY_TOKEN \
+            --env WAKATIME_API_KEY=$WAKATIME_API_KEY \
+            --reload \
+            main.ts
