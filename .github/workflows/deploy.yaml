@@ -27,7 +27,7 @@ jobs:
       - name: Run Deno script
         env:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-        run: deno run --allow-net --allow-env --lock-write main.ts
+        run: deno run --allow-net --allow-env --allow-read --lock-write main.ts
 
       - name: Deploy to Deno Deploy
         env:
